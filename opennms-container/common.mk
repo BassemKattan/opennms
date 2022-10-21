@@ -16,8 +16,9 @@ BASE_IMAGE              := opennms/deploy-base:jre-2.0.6.b165
 DOCKER_CLI_EXPERIMENTAL := enabled
 DOCKER_REGISTRY         := docker.io
 DOCKER_ORG              := opennms
-DOCKER_TAG              := $(DOCKER_REGISTRY)/$(DOCKER_ORG)/$(DOCKER_PROJECT):$(VERSION)
-DOCKER_BUILDX_TAG       := $(DOCKER_ORG)/$(DOCKER_PROJECT):buildx-$(shell echo $(BUILD_DATE) | sed 's/[-:]//g')
+DOCKER_BASE             := $(DOCKER_ORG)/$(DOCKER_PROJECT)
+DOCKER_TAG              := $(DOCKER_REGISTRY)/$(DOCKER_BASE):$(VERSION)
+DOCKER_BUILDX_TAG       := $(DOCKER_BASE):buildx-$(shell echo $(BUILD_DATE) | sed 's/[-:]//g')
 DOCKER_ARCH             := linux/amd64
 DOCKER_OCI              := images/$(DOCKER_PROJECT)-$(VERSION).oci
 DOCKER_FLAGS            :=
@@ -171,8 +172,8 @@ image:
 	  docker buildx ls >&2 ; \
 	  exit 1 ; \
 	fi
-	docker image tag "$(DOCKER_TAG)" "$(DOCKER_PROJECT):$(VERSION)"
-	docker image tag "$(DOCKER_TAG)" "$(DOCKER_PROJECT):latest"
+	docker image tag "$(DOCKER_TAG)" "$(DOCKER_BASE):$(VERSION)"
+	docker image tag "$(DOCKER_TAG)" "$(DOCKER_BASE):latest"
 	docker image tag "$(DOCKER_TAG)" "$(DOCKER_BUILDX_TAG)"
 
 build: oci
@@ -180,13 +181,14 @@ build: oci
 install: $(DOCKER_OCI)
 	@echo "Load image ..."
 	@docker image load -i "$(DOCKER_OCI)"
-	@docker image tag "$(DOCKER_TAG)" "$(DOCKER_ORG)/$(DOCKER_PROJECT):$(VERSION)"
-	@docker image tag "$(DOCKER_TAG)" "$(DOCKER_PROJECT):$(VERSION)"
-	@docker image tag "$(DOCKER_TAG)" "$(DOCKER_PROJECT):latest"
+	@docker image tag "$(DOCKER_TAG)" "$(DOCKER_BASE):$(VERSION)"
+	@docker image tag "$(DOCKER_TAG)" "$(DOCKER_BASE):latest"
 
 uninstall:
 	@echo "Remove image ..."
-	@docker rmi $(DOCKER_TAG)
+	@docker rmi "$(DOCKER_TAG)"
+	@docker rmi "$(DOCKER_BASE):$(VERSION)"
+	@docker rmi "$(DOCKER_BASE):latest"
 
 uninstall-all: uninstall
 	-docker image rm `docker image ls --format='{{ .Repository }}:{{ .Tag }}' '$(DOCKER_BASE):buildx-*T*Z'`
