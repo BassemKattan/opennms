@@ -23,14 +23,11 @@ commands:
 
             for FILE in *.oci; do
               echo "Loading ${FILE} into Docker..."
-              _tag="$(printf "${FILE}" | sed -e 's,\.oci$,,'):latest"
+              _tag="opennms/$(printf "${FILE}" | sed -e 's,\.oci$,,'):latest"
               if [ -z "$(docker image ls -q "${_tag}")" ]; then
                 docker image load -i "${FILE}"
               fi
-              _unprefixed="$(echo "${_tag}" | cut -d/ -f2 | cut -d- -f1)"
-              echo "Tagging docker image ${_tag} as [opennms/]${_unprefixed}:latest"
-              docker image tag "${_tag}" "opennms/${_unprefixed}:latest"
-              docker image tag "${_tag}" "${_unprefixed}:latest"
+              echo "NO LONGER TAGGING docker image as [opennms/]${_unprefixed}:latest -- leaving with existing tag ${_tag}"
             done
 
   build-image-single-arch:
