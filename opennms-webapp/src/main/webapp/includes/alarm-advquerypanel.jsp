@@ -69,7 +69,7 @@
   </c:choose>
 </c:set>
 
-<form action="alarm/query" method="post">
+<form action="alarm/query" method="get">
 	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
 	<div class="form-group col-sm-6">
