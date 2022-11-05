@@ -67,7 +67,7 @@
   </c:choose>
 </c:set>
 
-<form action="event/query" method="post">
+<form action="event/query" method="get">
 	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
 	<div class="row">
